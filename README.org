@@ -8,6 +8,15 @@
     - Non-destructive : Won't touch your files
     - Tries to propose intelligent values based on various parameters (file name, file list number, album name, etc.)
 
+*** Requirements
+    - Mandatory
+      - ffmpeg
+      - vorbiscomment
+      - exiftool
+    - Optional
+      - zenity
+      - kdialog
+
 *** Installation
     - Copy it somewhere and remember to make it executable
 
