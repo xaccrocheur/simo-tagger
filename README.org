@@ -12,7 +12,8 @@
     - Copy it somewhere and remember to make it executable
 
 *** Usage
-    -   ./simo-tagger.sh [ OPTIONS... ] album_directory
+    - cd album_directory/
+    - ./simo-tagger.sh [ OPTIONS... ]
 
     - Options
      - -h                            Display this help
