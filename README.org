@@ -9,13 +9,13 @@
     - Tries to propose intelligent values based on various parameters (file name, file list number, album name, etc.)
 
 *** Installation
-    - Copy it somewhere in your executable PATH and make it executable
+    - Copy it somewhere and remember to make it executable
 
 *** Usage
-    -   Simo.sh [ OPTIONS... ]
+    -   ./simo-tagger.sh [ OPTIONS... ] album_directory
 
     - Options
-      -h                            Display this help
+     - -h                            Display this help
      - -d <dir>                      Start processing <dir>
      - -c                            Command line mode (no GUI)
      - -b                            Set encoding bit rate (64k, 128k, 256k, 512k)
