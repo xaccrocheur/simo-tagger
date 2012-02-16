@@ -1,0 +1,38 @@
+* Simo, the Semi-Intelligent Music Organizer
+
+** simo-tagger.sh Allow you to encode from any format to ogg-vorbis, and to edit your adio files meta-informations along.
+
+*** Features
+    - GUI and command-line mode (command-line is more powerful & convenient)
+    - Remember all re-occuring info, such as encoding rate, album name, artist name, label, etc.
+    - Non-destructive : Won't touch your files
+    - Tries to propose intelligent values based on various parameters (file name, file list number, album name, etc.)
+
+*** Installation
+    - Copy it somewhere in your executable PATH and make it executable
+
+*** Usage
+    -   Simo.sh [ OPTIONS... ]
+
+    - Options
+     - -h                            Display this help
+     - -d <dir>                      Start processing <dir>
+     - -c                            Command line mode (no GUI)
+     - -b                            Set encoding bit rate (64k, 128k, 256k, 512k)
+     - -k                            Key: Your private key to sign audio files
+     - -s                            Silent: Auto-accept proposed values
+
+
+*** LICENSE
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
