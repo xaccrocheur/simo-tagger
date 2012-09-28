@@ -29,7 +29,6 @@
      - -d <dir>                      Start processing <dir>
      - -c                            Command line mode (no GUI)
      - -b                            Set encoding bit rate (64k, 128k, 256k, 512k)
-     - -k                            Key: Your private key to sign audio files
      - -s                            Silent: Auto-accept proposed values
 
 *** LICENSE

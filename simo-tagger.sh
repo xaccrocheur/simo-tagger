@@ -16,7 +16,6 @@ genreTagChecked=false
 commentTagChecked=false
 organizationTagChecked=false
 silent=false
-signature=false
 
 # Check arguments given
 while getopts ":hcsdbkf:" optname
@@ -25,7 +24,7 @@ while getopts ":hcsdbkf:" optname
             "h")
                 echo -e "Simo (Semi-Intelligent Media Ordinator)\n  will read your music files, encode them to ogg/vorbis, reading every tag,\n  and attempt to guess missing ones, prompting you otherwise.\n"
                 echo -e "Usage:\n  $scriptName [ OPTIONS... ]\n"
-                echo -e "Options\n  -h\t\t\t\tDisplay this help\n  -d <dir>\t\t\tStart processing <dir>\n  -c\t\t\t\tCommand line mode (no GUI)\n  -b\t\t\t\tSet encoding bit rate (64k, 128k, 256k, 512k)\n  -k\t\t\t\tKey: Your private key to sign audio files\n  -s\t\t\t\tSilent: Auto-accept proposed values\n"
+                echo -e "Options\n  -h\t\t\t\tDisplay this help\n  -d <dir>\t\t\tStart processing <dir>\n  -c\t\t\t\tCommand line mode (no GUI)\n  -b\t\t\t\tSet encoding bit rate (64k, 128k, 256k, 512k)\n  -s\t\t\t\tSilent: Auto-accept proposed values\n"
                 exit 0;
             ;;
             "c")
@@ -39,10 +38,6 @@ while getopts ":hcsdbkf:" optname
             ;;
             "b")
             bitRate=${OPTARG,,*}
-            ;;
-            "k")
-            privKey=${OPTARG}
-	    signature=true
             ;;
             "f")
             myRealFile=${OPTARG}
@@ -126,50 +121,6 @@ if [[ $workingDir == "" ]] ; then
         echo -e "####### $scriptName $version console mode - consider installing zenity\n"
     fi
 fi
-
-if ! $signature ; then
-    if $zen ; then
-        privKey=$(zenity --file-selection --title="$scriptName $version - Do you want to sign those files? Select private key file")
-        case $? in
-            0)
-	        signature=true
-	        ;;
-            1)
-	        signature=false
-	        ;;
-            -1)
-	        signature=false
-	        ;;
-        esac
-    else
-        read -e -p "####### Do you want to sign those files? Select private key file > " privKey
-    fi
-fi
-
-
-if $signature ; then
-
-    if $zen ; then
-	passPhrase=$(zenity --entry --hide-text --title="Passphrase of this key" --text="Enter the passphrase of this key")
-    else
-        echo "####### Enter the passphrase of this key "
-        read -s -e passPhrase
-    fi
-
-    TMPFILE=$(mktemp ./tmp.XXXXXXXXXX) || exit 1
-    echo $passPhrase > $TMPFILE
-    
-    privKeyPath="$privKey"
-    pubkey=`openssl rsa -in $privKeyPath -pubout -passin file:$TMPFILE > pubkey.rsa`
-    pubKey=`cat pubkey.rsa`
-    pubKeyPath="pubkey.rsa"
-    trap "rm -rf $TMPFILE" EXIT
-else
-    echo -e "####### No public key selected\n"
-fi
-
-
-# workingDir=${workingDir##*/}
 
 numberOfWavFiles=$(ls -la "${workingDir}"/*.wav 2>/dev/null | wc -l)
 numberOfMp3Files=$(ls -la "${workingDir}"/*.mp3 2>/dev/null | wc -l)
@@ -288,7 +239,7 @@ do
         else
             trackTag=${suggestTrack}
         fi
-        
+
     else
         trackTag=$TAG_track
     fi
@@ -430,24 +381,7 @@ do
 
     encodeCommand=$(ffmpeg -loglevel quiet -v 1 -y -i "${fullFilePath}" -metadata title="${titleTag}" -acodec libvorbis -ab ${bitRate} "${fullFilePathNoExt}.ogg")
 
-    echo "##################### TMPFILE :"$TMPFILE
-
-    if $signature ; then
-	echo "@@@@@@@@@@@@@@@@@@@ privKeyPath is $privKeyPath"
-	retagCommand=$(vorbiscomment -w "$infileName.ogg" -t "ARTIST=${artistTag}" -t "TITLE=${titleTag}" -t "ALBUM=$albumTag" -t "YEAR=$yearTag" -t "TRACK=$trackTag" -t "GENRE=$genreTag" -t "COMMENT=$commentTag" -t "ORGANIZATION=$organizationTag" -t "PUBKEY=$pubKey") && openssl dgst -sha1 -sign "$privKeyPath" -out "$infileName.ogg".sha1  "$infileName.ogg"
-
-#openssl dgst -sha1 -sign ../../AZERO/Azer0-key.pem -out Azer0-400-02-GateCrashers.ogg.sha1 Azer0-400-02-GateCrashers.ogg
-
-
-#binaryHash=$(uuencode "$infileName.ogg".sha1)
-
-# -passin pass:$TMPFILE 
-#        7z a ${infileName}.7z ${infileName}.ogg ${infileName}.ogg.sha1 pubkey.rsa
-#        rm pubkey.rsa ${infileName}.ogg.sha1
-    echo "##################### TMPFILE :"$TMPFILE
-    else
-	retagCommand=$(vorbiscomment -w "$infileName.ogg" -t "ARTIST=${artistTag}" -t "TITLE=${titleTag}" -t "ALBUM=$albumTag" -t "YEAR=$yearTag" -t "TRACK=$trackTag" -t "GENRE=$genreTag" -t "COMMENT=$commentTag" -t "ORGANIZATION=$organizationTag")
-    fi
+    retagCommand=$(vorbiscomment -w "$infileName.ogg" -t "ARTIST=${artistTag}" -t "TITLE=${titleTag}" -t "ALBUM=$albumTag" -t "YEAR=$yearTag" -t "TRACK=$trackTag" -t "GENRE=$genreTag" -t "COMMENT=$commentTag" -t "ORGANIZATION=$organizationTag")
 
     if $zen ; then
         ${encodeCommand} 2>&1 | zenity --progress --text="Converting: <b>${realFileName}</b> to <b>Ogg/Vorbis</b> at <b>${bitRate}b/s</b>" --title="$scriptName $version - Encoding" --auto-close --auto-kill --pulsate
@@ -466,8 +400,7 @@ Track\t\t${trackTag}\n
 Genre\t\t${genreTag}\n
 Record Label\t${organizationTag}\n
 Comment\t${commentTag}\n
-Public Key\t${pubKey}\n"
-    
+
     echo -e "\n##########################################"
     echo -e ${myMessage}
     echo -e "##########################################\n"
